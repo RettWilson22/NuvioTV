@@ -102,14 +102,24 @@ data class NuvioContrastPair(
 class NuvioColorScheme(
     palette: ThemeColorPalette,
     amoledMode: Boolean = false,
-    amoledSurfacesMode: Boolean = false
+    amoledSurfacesMode: Boolean = false,
+    /** True when the user set a custom background; screens go see-through so it shows behind them. */
+    customBackgroundActive: Boolean = false,
+    /** Opacity applied to cards while a custom background is active. */
+    customBackgroundCardAlpha: Float = 1f
 ) {
     private val pureBlack = NuvioPrimitives.black
     private val pureBlackSurfaces = amoledMode && amoledSurfacesMode
 
-    val Background = if (amoledMode) pureBlack else palette.background
+    val Background = when {
+        customBackgroundActive -> Color.Transparent
+        amoledMode -> pureBlack
+        else -> palette.background
+    }
     val BackgroundElevated = if (pureBlackSurfaces) pureBlack else palette.backgroundElevated
-    val BackgroundCard = if (pureBlackSurfaces) pureBlack else palette.backgroundCard
+    val BackgroundCard = (if (pureBlackSurfaces) pureBlack else palette.backgroundCard).let { card ->
+        if (customBackgroundActive) card.copy(alpha = customBackgroundCardAlpha) else card
+    }
     val Surface = if (pureBlackSurfaces) pureBlack else palette.surface
     val SurfaceVariant = if (pureBlackSurfaces) pureBlack else palette.surfaceVariant
     val Panel = if (pureBlackSurfaces) pureBlack else palette.panel

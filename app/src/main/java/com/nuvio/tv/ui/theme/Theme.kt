@@ -10,6 +10,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.darkColorScheme
 import com.nuvio.tv.domain.model.AppFont
 import com.nuvio.tv.domain.model.AppTheme
+import com.nuvio.tv.domain.model.CustomBackground
 import com.nuvio.tv.domain.model.CustomThemeColors
 import com.nuvio.tv.domain.model.SettingsUiStyle
 
@@ -60,6 +61,7 @@ fun NuvioTheme(
     amoledSurfacesMode: Boolean = false,
     settingsUiStyle: SettingsUiStyle = SettingsUiStyle.CLASSIC,
     customThemeColors: CustomThemeColors = CustomThemeColors.Default,
+    customBackground: CustomBackground = CustomBackground(),
     content: @Composable () -> Unit
 ) {
     val palette = androidx.compose.runtime.remember(appTheme, customThemeColors) {
@@ -69,7 +71,9 @@ fun NuvioTheme(
     val colorScheme = NuvioColorScheme(
         palette = palette,
         amoledMode = amoledMode,
-        amoledSurfacesMode = amoledSurfacesMode
+        amoledSurfacesMode = amoledSurfacesMode,
+        customBackgroundActive = customBackground.isActive,
+        customBackgroundCardAlpha = customBackground.cardOpacity / 100f
     )
     val typography = buildNuvioTypography(getFontFamily(appFont))
     val textStyles = buildNuvioTextStyles(typography)
