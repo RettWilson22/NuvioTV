@@ -2,12 +2,15 @@ package com.nuvio.tv.ui.screens.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nuvio.tv.data.local.CustomBackgroundDataStore
 import com.nuvio.tv.data.local.ThemeDataStore
 import com.nuvio.tv.data.repository.MemberAccessRepository
 import com.nuvio.tv.domain.model.AppFont
 import com.nuvio.tv.domain.model.AppIconOption
 import com.nuvio.tv.domain.model.AppTheme
 import com.nuvio.tv.domain.model.CosmeticEntitlements
+import com.nuvio.tv.domain.model.CustomBackground
+import com.nuvio.tv.domain.model.CustomBackgroundMode
 import com.nuvio.tv.domain.model.CustomThemeColors
 import com.nuvio.tv.domain.model.SettingsUiStyle
 import com.nuvio.tv.domain.model.availableAppThemes
@@ -36,6 +39,7 @@ data class ThemeSettingsUiState(
     val amoledMode: Boolean = false,
     val amoledSurfacesMode: Boolean = false,
     val settingsUiStyle: SettingsUiStyle = SettingsUiStyle.CLASSIC,
+    val customBackground: CustomBackground = CustomBackground(),
     val availableSettingsUiStyles: List<SettingsUiStyle> = SettingsUiStyle.entries.toList()
 )
 
@@ -47,11 +51,20 @@ sealed class ThemeSettingsEvent {
     data class ToggleAmoledSurfacesMode(val enabled: Boolean) : ThemeSettingsEvent()
     data class SelectSettingsUiStyle(val style: SettingsUiStyle) : ThemeSettingsEvent()
     data object DismissAppIconFailure : ThemeSettingsEvent()
+    data class SetBackgroundMode(val mode: CustomBackgroundMode) : ThemeSettingsEvent()
+    data class SetBackgroundColor(val index: Int) : ThemeSettingsEvent()
+    data class SetBackgroundGradient(val index: Int) : ThemeSettingsEvent()
+    data class SetBackgroundImageUrl(val url: String) : ThemeSettingsEvent()
+    data class SetBackgroundDim(val dim: Int) : ThemeSettingsEvent()
+    data class SetBackgroundBlur(val blur: Int) : ThemeSettingsEvent()
+    data class SetBackgroundCardOpacity(val opacity: Int) : ThemeSettingsEvent()
+    data object ResetBackground : ThemeSettingsEvent()
 }
 
 @HiltViewModel
 class ThemeSettingsViewModel @Inject constructor(
     private val themeDataStore: ThemeDataStore,
+    private val customBackgroundDataStore: CustomBackgroundDataStore,
     private val memberAccessRepository: MemberAccessRepository,
     private val appIconManager: AppIconManager
 ) : ViewModel() {
@@ -125,6 +138,13 @@ class ThemeSettingsViewModel @Inject constructor(
                 }
         }
         viewModelScope.launch {
+            customBackgroundDataStore.background
+                .distinctUntilChanged()
+                .collectLatest { background ->
+                    _uiState.update { state -> state.copy(customBackground = background) }
+                }
+        }
+        viewModelScope.launch {
             themeDataStore.settingsUiStyle
                 .distinctUntilChanged()
                 .collectLatest { style ->
@@ -148,7 +168,19 @@ class ThemeSettingsViewModel @Inject constructor(
             is ThemeSettingsEvent.ToggleAmoledSurfacesMode -> setAmoledSurfacesMode(event.enabled)
             is ThemeSettingsEvent.SelectSettingsUiStyle -> selectSettingsUiStyle(event.style)
             ThemeSettingsEvent.DismissAppIconFailure -> appIconManager.clearFailure()
+            is ThemeSettingsEvent.SetBackgroundMode -> updateBackground { setMode(event.mode) }
+            is ThemeSettingsEvent.SetBackgroundColor -> updateBackground { setColorIndex(event.index) }
+            is ThemeSettingsEvent.SetBackgroundGradient -> updateBackground { setGradientIndex(event.index) }
+            is ThemeSettingsEvent.SetBackgroundImageUrl -> updateBackground { setImageUrl(event.url) }
+            is ThemeSettingsEvent.SetBackgroundDim -> updateBackground { setDim(event.dim) }
+            is ThemeSettingsEvent.SetBackgroundBlur -> updateBackground { setBlur(event.blur) }
+            is ThemeSettingsEvent.SetBackgroundCardOpacity -> updateBackground { setCardOpacity(event.opacity) }
+            ThemeSettingsEvent.ResetBackground -> updateBackground { reset() }
         }
+    }
+
+    private fun updateBackground(action: suspend CustomBackgroundDataStore.() -> Unit) {
+        viewModelScope.launch { customBackgroundDataStore.action() }
     }
 
     fun selectAppIcon(option: AppIconOption): Boolean = appIconManager.select(option)

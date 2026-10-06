@@ -154,11 +154,13 @@ import com.nuvio.tv.data.local.AuthSessionNoticeDataStore
 import com.nuvio.tv.data.local.ExperienceModeDataStore
 import com.nuvio.tv.data.local.LayoutPreferenceDataStore
 import com.nuvio.tv.data.local.StartupAuthNotice
+import com.nuvio.tv.data.local.CustomBackgroundDataStore
 import com.nuvio.tv.data.local.ThemeDataStore
 import com.nuvio.tv.data.repository.MemberAccessRepository
 import com.nuvio.tv.data.remote.supabase.AvatarRepository
 import com.nuvio.tv.domain.model.AppFont
 import com.nuvio.tv.domain.model.AppTheme
+import com.nuvio.tv.domain.model.CustomBackground
 import com.nuvio.tv.domain.model.CustomThemeColors
 import com.nuvio.tv.domain.model.AuthState
 import com.nuvio.tv.domain.model.CardDepthStyle
@@ -191,6 +193,7 @@ import com.nuvio.tv.ui.theme.NuvioMotion
 import com.nuvio.tv.ui.theme.NuvioPrimitives
 import com.nuvio.tv.ui.theme.NuvioRadii
 import com.nuvio.tv.ui.theme.NuvioStrokes
+import com.nuvio.tv.ui.components.CustomBackgroundLayer
 import com.nuvio.tv.ui.theme.NuvioTheme
 import com.nuvio.tv.ui.theme.ThemeColors
 import com.nuvio.tv.ui.theme.accentBrush
@@ -265,6 +268,9 @@ open class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var themeDataStore: ThemeDataStore
+
+    @Inject
+    lateinit var customBackgroundDataStore: CustomBackgroundDataStore
 
     @Inject
     lateinit var layoutPreferenceDataStore: LayoutPreferenceDataStore
@@ -587,6 +593,9 @@ open class MainActivity : ComponentActivity() {
             val mainUiPrefs by key(activeProfileId, startupSession) {
                 mainUiPrefsFlow.collectAsState(initial = MainUiPrefs(hasChosenLayout = null))
             }
+            val customBackground by key(activeProfileId, startupSession) {
+                customBackgroundDataStore.background.collectAsState(initial = CustomBackground())
+            }
             val installedAddons by key(activeProfileId, startupSession) {
                 remember(addonRepository) {
                     addonRepository.getInstalledAddons()
@@ -600,7 +609,8 @@ open class MainActivity : ComponentActivity() {
                 appFont = mainUiPrefs.font,
                 amoledMode = mainUiPrefs.amoledMode,
                 amoledSurfacesMode = mainUiPrefs.amoledSurfacesMode,
-                settingsUiStyle = mainUiPrefs.settingsUiStyle
+                settingsUiStyle = mainUiPrefs.settingsUiStyle,
+                customBackground = customBackground
             ) {
                 val defaultBringIntoViewSpec = LocalBringIntoViewSpec.current
                 val bringIntoViewSpec = if (mainUiPrefs.smoothBringIntoViewEnabled) {
@@ -722,6 +732,9 @@ open class MainActivity : ComponentActivity() {
                     // Wrap everything in a Box. This prevents any black flash between
                     // profile selection and the home content
                     Box(modifier = Modifier.fillMaxSize()) {
+                    if (customBackground.isActive && !transparentPlayerBackdrop) {
+                        CustomBackgroundLayer(background = customBackground)
+                    }
 
                     var startupDestination = StartupDestination.Loading
                     val surfaceContentReady = hasSeenAuthQrOnFirstLaunch != null &&

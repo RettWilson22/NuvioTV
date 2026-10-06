@@ -261,6 +261,11 @@ fun ThemeSettingsContent(
                 }
             }
 
+            CustomBackgroundSettingsGroup(
+                background = uiState.customBackground,
+                onEvent = viewModel::onEvent
+            )
+
             SettingsGroupCard(
                 modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.appearance_settings_style),
