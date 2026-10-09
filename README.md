@@ -1,3 +1,5 @@
+> **About this fork:** I ported my custom-backgrounds feature from the [Nuvio mobile fork](https://github.com/RettWilson22/NuvioMobile/tree/custom-backgrounds) to Android TV. Theme settings get a color, gradient, or image-URL background with dim and blur controls, built for D-pad focus in Compose for TV. See [the full diff against upstream](https://github.com/RettWilson22/NuvioTV/compare/dev...custom-backgrounds). The original project README follows.
+
 <div align="center">
 
   <img src="assets/brand/app_logo_wordmark.png" alt="Nuvio" width="300" />
