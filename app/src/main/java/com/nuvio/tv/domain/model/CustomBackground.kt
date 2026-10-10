@@ -9,7 +9,7 @@ enum class CustomBackgroundMode {
     IMAGE
 }
 
-/** Preset solid colors offered in Appearance → Background. */
+/** Preset solid colors offered in Appearance > Background. */
 val CustomBackgroundColorPresets: List<Color> = listOf(
     Color(0xFF0B1426),
     Color(0xFF1B0F2E),
@@ -21,7 +21,7 @@ val CustomBackgroundColorPresets: List<Color> = listOf(
     Color(0xFF0E2F35)
 )
 
-/** Preset gradients (top-left → bottom-right) offered in Appearance → Background. */
+/** Preset gradients, top-left to bottom-right, offered in Appearance > Background. */
 val CustomBackgroundGradientPresets: List<List<Color>> = listOf(
     listOf(Color(0xFF1E3C72), Color(0xFF0B0F1A)),
     listOf(Color(0xFF42275A), Color(0xFF734B6D), Color(0xFF0D0D0D)),
@@ -43,11 +43,11 @@ data class CustomBackground(
     val gradientIndex: Int = 0,
     /** Any http(s) image link the user pasted in. */
     val imageUrl: String? = null,
-    /** Black overlay on top of the background, 0–90%. Keeps text readable over bright images. */
+    /** Percent of black drawn over the background, so text stays readable over bright images. */
     val dim: Int = 45,
     /** Blur radius in dp for image backgrounds (needs Android 12+ on the TV). */
     val blur: Int = 0,
-    /** Opacity of cards drawn over the background, 30–100%. */
+    /** Opacity percent of the cards drawn over the background. */
     val cardOpacity: Int = 85
 ) {
     val isActive: Boolean
