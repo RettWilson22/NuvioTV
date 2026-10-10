@@ -3,6 +3,7 @@
 package com.nuvio.tv.ui.screens.settings
 
 import android.view.KeyEvent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -73,7 +73,7 @@ private fun CustomBackgroundMode.label(): String = stringResource(
     }
 )
 
-/** Appearance → Background: theme default, preset color/gradient, or any image URL. */
+/** Appearance > Background: theme default, a preset color or gradient, or any image URL. */
 @Composable
 internal fun CustomBackgroundSettingsGroup(
     background: CustomBackground,
@@ -264,7 +264,7 @@ private fun BackgroundSwatchRow(
         contentPadding = PaddingValues(horizontal = NuvioTheme.spacing.xs, vertical = NuvioTheme.spacing.xs),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        items((0 until count).toList()) { index ->
+        items(count) { index ->
             val isSelected = index == selectedIndex
             Card(
                 onClick = { onSelect(index) },
@@ -288,7 +288,6 @@ private fun BackgroundSwatchRow(
             ) {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
                         .size(width = 72.dp, height = 48.dp)
                         .clip(shape)
                         .background(brushFor(index)),
@@ -341,7 +340,7 @@ private fun BackgroundImageUrlDialog(
             ),
             border = CardDefaults.border(
                 border = Border(
-                    border = androidx.compose.foundation.BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
+                    border = BorderStroke(NuvioTheme.spacing.hairline, NuvioTheme.colors.Border),
                     shape = fieldShape
                 ),
                 focusedBorder = Border(border = NuvioTheme.focusRing.border(NuvioTheme.spacing.xxs), shape = fieldShape)
